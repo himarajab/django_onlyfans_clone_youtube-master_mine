@@ -1,0 +1,23 @@
+from post.views import index
+from tier.views import subscribe
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from authy.views import UserProfile
+
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('user/', include('authy.urls')),
+    path('sub/', include('tier.urls')),
+    path('post/', include('post.urls')),
+    # path('notifications/', include('notifications.urls')),
+    # path('messages/', include('direct.urls')),
+    path('', index, name='index'),
+    path('<username>/', UserProfile, name='profile'),
+    path('<username>/photos', UserProfile, name='profilephotos'),
+    path('<username>/videos', UserProfile, name='profilevideos'),
+    path('<username>/<tier_id>/subscribe', subscribe, name='subscribe'),
+
+] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
