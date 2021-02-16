@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from authy.models import Profile
+from authy.models import PeopleList, Profile
 
 def ForbiddenUsers(value):
 	forbidden_users = ['admin', 'css', 'js', 'authenticate', 'login', 'logout', 'administrator', 'root',
@@ -83,3 +83,11 @@ class EditProfileForm(forms.ModelForm):
 	class Meta:
 		model = Profile
 		fields = ('picture', 'banner','first_name', 'last_name', 'location', 'url', 'profile_info')
+
+
+class NewListForm(forms.ModelForm):
+	title = forms.CharField(widget=forms.TextInput(),max_length=150,required=True)
+
+	class Meta:
+		model = PeopleList
+		fields = ['title',]

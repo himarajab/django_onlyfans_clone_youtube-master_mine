@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from tier.models import Tier,Subscription
-from post.models import Post,PostFileContent,Stream,Likes
+from post.models import Post,PostFileContent,Stream,Likes,Bookmark
 from post.forms import NewPostForm
 from django.shortcuts import redirect, render,get_object_or_404
 
@@ -114,3 +114,39 @@ def like(request, post_id):
     post.save()
 
     return HttpResponseRedirect(reverse('post-detail', args=[post_id])) 
+
+@login_required
+def bookmark(request, post_id):
+    user = request.user
+    post = get_object_or_404(Post, id=post_id)
+    current_bookmarks = post.favorites_count
+
+    try:
+        b, created = Bookmark.objects.get_or_create(user=user)
+        if b.posts.filter(id=post_id).exists():
+            b.posts.remove(post)
+            current_bookmarks = current_bookmarks - 1
+        else:
+            b.posts.add(post)
+            current_bookmarks = current_bookmarks + 1
+        post.favorites_count = current_bookmarks
+        post.save()
+        return HttpResponseRedirect(reverse('post-detail', args=[post_id]))
+    except Exception as e:
+        raise e
+
+
+@login_required
+def BookmarkList(request):
+    bookmark_list = Bookmark.objects.get(user=request.user)
+
+    #Pagination
+    paginator = Paginator(bookmark_list.posts.all(), 9)
+    page_number = request.GET.get('page')
+    bookmark_data = paginator.get_page(page_number)
+
+    context = {
+        'bookmark_data': bookmark_data,
+    }
+
+    return render(request, 'bookmark_list.html', context)

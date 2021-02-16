@@ -7,26 +7,45 @@
 
   <div class="col s6 offset-s3">
   
+    {% comment %}
+    if it's picture
+  {% endcomment %}
+    
+      
+      
   {% for stream in stream_data %}
     <div class="col s12 m12">
       <div class="card">
 
       {% if stream.visible == True %}
         <div class="card-image">
-          {% comment %}
-            if it's picture
-          {% endcomment %}
-        {% if stream.post.content.first.file.name|slice:"-3:" == 'jpg' %}
+
+
+        
+          {% if stream.post.content.first.file.name|slice:"-3:" == 'jpg' %}
+          
+            
+            {% comment %}
+              
+              
+            
           <a href="{{ stream.post.get_absolute_url }}"><img src="{{ stream.post.content.first.file.url }}"></a>
+          {% endcomment %}
+
+
           <span class="card-title"><b>{{ stream.post.title }}</b></span>
           <a class="btn-floating halfway-fab waves-effect waves-light red"><i class="material-icons">favorite</i></a>
         {% else %}
+
         <div class="video-container">
           <video class="responsive-video" controls="controls" preload="metadata">
+            
             <source src="{{ stream.post.content.first.file.url }}#t=0.5" type="video/mp4">
           </video>
         </div>
         {% endif %}
+
+
         </div>
       {% else %}
           <div class="center-align">
@@ -41,7 +60,11 @@
       {% endif %}
         <div class="card-content">
           {{ stream.post.caption }}
+          {% comment %}
+            
           <p><a href="{{ stream.post.get_absolute_url }}">Click to see Full post</a></p>
+          {% endcomment %}
+
         </div>
 
         <div class="card-action">
@@ -72,6 +95,8 @@
       </div>
     </div>
     {% endfor %}
+
+
 
   </div>
     

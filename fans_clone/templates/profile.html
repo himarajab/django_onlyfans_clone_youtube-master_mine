@@ -33,38 +33,19 @@
               {% endif %}
 
               {% if user.is_authenticated and user != profile.user %}
-                {% if person_in_list == True %}
-                  <a href="{% url 'remove-from-list' profile.user.username %}" class="btn red"><i class="material-icons">favorite</i>Remove</a>
-                {% else %}
+
                   <a href="#modal1" class="modal-trigger"><i class="material-icons">favorite</i>Favorite</a>
-                {% endif %}
-              {% endif %}
-
+                  {% endif %}
             </div>
-
+{% comment %}
+  
+  
               <!-- Modal Structure For the list select -->
               <div id="modal1" class="modal">
                 <div class="modal-content">
                   <h4>Save to list</h4>
-                  {% comment %}
                     
-                  <form role="form" method="POST" action="{% url 'add-to-list' %}" id="addtolistform">
-                    {% csrf_token %}
-                    <div class="input-field col s12">
-                      <select name="list_item">
-                        <option value="" disabled selected>Choose from your custom lists</option>
-                        {% for favorite in favorite_list %}
-                          <option value="{{ favorite.id }}">{{ favorite.title }}</option>
-                        {% endfor %}
-                      </select>
-                      <label>Favorite People List</label>
-                    </div>
-                    <input type="hidden" name="to" value="{{ profile.user.username }}">
-                    <button class="btn waves-effect waves-light" type="submit" name="action">Submit
-                      <i class="material-icons right">send</i>
-                    </button>
-                  </form>
-                  {% endcomment %}
+<form role="form" action="" method="POST" id='addtolistform'></form>
 
 
                 </div>
@@ -76,6 +57,7 @@
               <!-- END Modal Structure For the list select -->
 
             {% include "new_list_modal.html" %}
+            {% endcomment %}
 
             <div class="col s10">
               <h3><b>{{ profile.user.first_name }} {{ profile.user.last_name }}</b></h3>

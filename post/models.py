@@ -40,8 +40,8 @@ class Post(models.Model):
     def get_absolute_url(self):
         # the url user will get when click on the post
         return reverse("post-detail", args=str(self.id))
-    def __str__(self) -> str:
-        return self.title
+        
+
 # to show posts from user u subscribe to them 
 
 class Stream(models.Model):
@@ -71,8 +71,7 @@ class Stream(models.Model):
 
 
                     
-    def __str__(self) -> str:
-        return str(self.post)
+
 
 class Likes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_likes')
@@ -90,3 +89,12 @@ class Likes(models.Model):
     #     sender = like.user
     #     notify = Notification.objects.filter(post=post, sender=sender, notification_type=1)
     #     notify.delete()   
+
+
+class Bookmark(models.Model):
+    posts = models.ManyToManyField(Post)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmark_user')
+
+
+    def __str__(self) -> str:
+        return f'{self.user} {self.posts}'
