@@ -41,6 +41,11 @@ def UserProfile(request, username):
 	favorite_list = PeopleList.objects.filter(user=request.user)
 
 
+	# check if the profile in any of favourite list
+	person_in_list = PeopleList.objects.filter(user=request.user,people=user).exists()
+
+
+
 	# new favourie list form 
 	if request.method == 'POST':
 		form = NewListForm(request.POST)
@@ -56,7 +61,7 @@ def UserProfile(request, username):
 
 	context = {
 	'profile':profile,'tiers':tiers,'posts_count':posts_count,'form':form,
-	'favorite_list':favorite_list,
+	'favorite_list':favorite_list,'person_in_list':person_in_list,
 	}
 
 	return HttpResponse(template.render(context, request))
@@ -139,3 +144,62 @@ def EditProfile(request):
 	return render(request, 'registration/edit_profile.html', context)
 
 
+
+#  to add user to the list we select 
+def add_to_list(request):
+	user = request.user
+	if request.method == 'POST':
+		to_list = request.POST.get('list_item')
+		to_person = request.POST.get('to')
+		person = get_object_or_404(User,username=to_person)
+		try:
+			# search for list 
+			people_list = get_object_or_404(PeopleList,user=user,id=to_list)
+			# add people after finding the list
+			people_list.people.add(person)
+			return HttpResponseRedirect(reverse('profile',args=[to_person]))
+		except Exception as e:
+			raise e
+def remove_from_list(request,username):
+		person = get_object_or_404(User,username=username)
+		list_id = PeopleList.objects.get(user=request.user,people=person)
+		try:
+				# to make query inside many to many field
+				PeopleList.people.through.objects.filter(user_id=person.id,peoplelist_id=list_id).delete()
+				return HttpResponseRedirect(reverse('profile',args=[person]))
+
+		except Exception as e :
+				raise e
+
+def show_list(request):
+	user_lists = PeopleList.objects.filter(user=request.user)
+
+	# new favourie list form 
+	if request.method == 'POST':
+		form = NewListForm(request.POST)
+		if form.is_valid():
+			title = form.cleaned_data.get('title')
+			PeopleList.objects.create(title=title,user=request.user)
+			return HttpResponseRedirect(reverse('profile',args=[request.user.username]))
+	else:
+  		form = NewListForm()
+
+
+	context = {
+		'user_lists':user_lists,'form':form,
+	}
+
+	return render(request,'user_lists.html',context)
+
+
+def list_people(request,list_id):
+	user_list = get_object_or_404(PeopleList,id=list_id)
+
+	context = {'user_list':user_list,}
+
+	return render(request,'people_list.html',context)
+
+
+def list_people_delete(request,list_id):
+	PeopleList.objects.filter(id=list_id).delete()
+	return HttpResponseRedirect(reverse('show-my-lists'))

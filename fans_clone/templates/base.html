@@ -5,7 +5,10 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
-  <title>Starter Template - Materialize</title>
+  {% comment %}     the default one unless we specify another one {% endcomment %}
+  {% block title %}
+  Hello, world!
+  {% endblock title %}
 
   <!-- CSS  -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -56,7 +59,7 @@
     <li><a class="subheader">Me</a></li>
     <li><a href="{% url 'profile' nav_profile.user.username %}"><i class="material-icons">person</i>My profile</a></li>
     <li><a href="{% url 'bookmarks' %}"><i class="material-icons">bookmarks</i>Bookmarks</a></li>
-    <li><a href=""><i class="material-icons">list</i>Lists</a></li>
+    <li><a href="{% url 'show-my-lists' %}"><i class="material-icons">list</i>Lists</a></li>
     <li><div class="divider"></div></li>
     <li><a class="subheader">Payments</a></li>
     <li><a href="#!"><i class="material-icons">credit_card</i>Your cards</a></li>
