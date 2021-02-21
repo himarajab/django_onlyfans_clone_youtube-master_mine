@@ -1,4 +1,6 @@
+from notifications.models import Notification
 from django.db import models
+from django.db.models.signals import post_save,post_delete
 
 from django.contrib.auth.models import User
 
@@ -27,5 +29,30 @@ class Subscription(models.Model):
     expired = models.BooleanField(default=False)
 
     def __str__(self):
-        # return f'{self.subscriber.username} == {self.subscriber.username} == Tier {self.tier.number}'
-        return str(self.id)
+        return f'{self.subscriber.username} == {self.subscribed.username} == Tier {self.tier.number}'
+
+    
+    def user_subscribed(sender, instance, *args, **kwargs):
+        subscription = instance
+        sender = subscription.subscriber
+        # user receives the notification
+        subscribing = subscription.subscribed
+
+
+        notify = Notification(sender=sender,user=subscribing,notification_type=3)
+        notify.save()
+
+    # cause if user change his mind we remove the Notification
+    def user_unsubscribed(sender,instance,*args, **kwargs):
+        subscription = instance
+        sender = subscription.subscriber
+        # user receives the notification
+        subscribing = subscription.subscribed
+
+        notify = Notification.objects.filter(sender=sender,user=subscribing,notification_type=3)
+        notify.delete()
+
+
+# Subscription signals stuff 
+post_save.connect(Subscription.user_subscribed,sender=Subscription)
+post_delete.connect(Subscription.user_unsubscribed,sender=Subscription)

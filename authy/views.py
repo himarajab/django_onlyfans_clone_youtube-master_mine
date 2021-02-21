@@ -31,6 +31,7 @@ def side_nav_info(request):
 	
 
 def UserProfile(request, username):
+	print(username)
 	user = get_object_or_404(User, username=username)
 	profile = Profile.objects.get(user=user)
 	tiers = Tier.objects.filter(user=user)
@@ -54,7 +55,7 @@ def UserProfile(request, username):
 			PeopleList.objects.create(title=title,user=request.user)
 			return HttpResponseRedirect(reverse('profile',args=[username]))
 	else:
-  		form = NewListForm()
+			form = NewListForm()
 
 
 	template = loader.get_template('profile.html')

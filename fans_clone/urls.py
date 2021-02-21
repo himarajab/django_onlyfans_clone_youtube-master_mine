@@ -9,10 +9,10 @@ from authy.views import UserProfile,remove_from_list
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('user/', include('authy.urls')),
     path('sub/', include('tier.urls')),
+    path('user/', include('authy.urls')),
     path('post/', include('post.urls')),
-    # path('notifications/', include('notifications.urls')),
+    path('notifications/', include('notifications.urls')),
     # path('messages/', include('direct.urls')),
     path('', index, name='index'),
     path('<username>/', UserProfile, name='profile'),

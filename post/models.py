@@ -1,6 +1,7 @@
+from notifications.models import Notification
 from django import dispatch
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save,post_delete
 from django.db.models.sql import subqueries
 from django.urls import reverse
 import uuid
@@ -40,7 +41,8 @@ class Post(models.Model):
     def get_absolute_url(self):
         # the url user will get when click on the post
         return reverse("post-detail", args=str(self.id))
-        
+    def __str__(self) -> str:
+        return f'{self.title}'   
 
 # to show posts from user u subscribe to them 
 
@@ -51,6 +53,11 @@ class Stream(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     visible = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self) -> str:
+        return f'{self.user} subscribe to {self.subscribed}'
+
 
     # notify useres when people they foloow create posts
     # prevent double signal fire (tow posts)
@@ -76,19 +83,23 @@ class Stream(models.Model):
 class Likes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_likes')
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_likes')
-     
-    # def user_liked_post(sender, instance, *args, **kwargs):
-    #     like = instance
-    #     post = like.post
-    #     sender = like.user
-    #     notify = Notification(post=post, sender=sender, user=post.user, notification_type=1)
-    #     notify.save()
-    # def user_unlike_post(sender, instance, *args, **kwargs):
-    #     like = instance
-    #     post = like.post
-    #     sender = like.user
-    #     notify = Notification.objects.filter(post=post, sender=sender, notification_type=1)
-    #     notify.delete()   
+
+    def user_liked_post(sender, instance, *args, **kwargs):
+        like = instance
+        post = like.post
+        sender = like.user
+
+        notify = Notification(post=post,sender=sender,user=post.user,notification_type=1)
+        notify.save()
+
+    # cause if user change his mind we remove the Notification
+    def user_unlike_post(sender,instance,*args, **kwargs):
+        like = instance
+        post = like.post
+        sender = like.user
+
+        notify = Notification.objects.filter(post=post,sender=sender,notification_type=1)
+        notify.delete()
 
 
 class Bookmark(models.Model):
@@ -98,3 +109,8 @@ class Bookmark(models.Model):
 
     def __str__(self) -> str:
         return f'{self.user} {self.posts}'
+
+
+# signal stuff for likes 
+post_save.connect(Likes.user_liked_post,sender=Likes)
+post_delete.connect(Likes.user_unlike_post,sender=Likes)

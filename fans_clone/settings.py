@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+from decouple import config
 from pathlib import Path
 import os
 
@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'authy',
     'post',
     'tier',
+    'comment',
+    'notifications',
 
     
     # plugins
@@ -75,7 +77,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
 
                 # mine
-                'authy.views.side_nav_info'
+                'authy.views.side_nav_info',
+                'notifications.views.count_notifications',
             ],
         },
     },
@@ -90,8 +93,17 @@ WSGI_APPLICATION = 'fans_clone.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': config('DB_NAME'),
+    #     'USER': config('DB_USER'),
+    #     'PASSWORD': config('DB_PASSWORD'),
+    #     'HOST': config('DB_HOST'),
+    #     # 'PORT': '',
+
+    # }
 }
 
 

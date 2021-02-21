@@ -1,3 +1,5 @@
+from comment.models import Comment
+from comment.forms import CommentForm
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator
@@ -19,7 +21,6 @@ def index(request):
   
   stream_data = paginator.get_page(page_number)
   # stream_data = [1]
-  print(stream_data)
   # return True
   context = {
       'stream_data': stream_data,
@@ -32,13 +33,29 @@ def index(request):
 def post_details(request, post_id):
     user = request.user
     post = get_object_or_404(Post, id=post_id)
+    # visible = False
 
     #Check if the user liked the post
     if Likes.objects.filter(post=post, user=user).exists():
         liked = True
     else:
         liked = False
-    
+    #Comment stuff:
+    comments = Comment.objects.filter(post=post).order_by('-date')
+
+    #Comment form
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.user = user
+            comment.save()
+            post.comments_count += 1
+            post.save()
+            return HttpResponseRedirect(reverse('post-detail', args=[post_id]))
+    else:
+        form = CommentForm()
 
     # To validate that the user can see the post
     if user != post.user:
@@ -47,15 +64,15 @@ def post_details(request, post_id):
             visible = True
         else:
             visible = False
-    # else:
-    #     visible = True
+    else:
+        visible = True
     
     context = {
         'post': post,
         'visible': visible,
         'liked': liked,
-        # 'comments': comments,
-        # 'form': form,
+        'comments': comments,
+        'form': form,
     }
 
     return render(request, 'post_detail.html', context)

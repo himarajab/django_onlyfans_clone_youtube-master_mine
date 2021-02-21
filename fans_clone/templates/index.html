@@ -19,18 +19,13 @@
 
       {% if stream.visible == True %}
         <div class="card-image">
-
-
         
-          {% if stream.post.content.first.file.name|slice:"-3:" == 'jpg' %}
-          
-            
-            {% comment %}
-              
-              
-            
-          <a href="{{ stream.post.get_absolute_url }}"><img src="{{ stream.post.content.first.file.url }}"></a>
-          {% endcomment %}
+          {% if stream.post.content.first.file.name|slice:"-3:" == 'jpg'%}
+{% comment %}      
+          <a href="{{ stream.post.get_absolute_url }}">
+      <img src="{{ stream.post.content.first.file.url }}">
+        {% endcomment %}
+        </a>
 
 
           <span class="card-title"><b>{{ stream.post.title }}</b></span>
@@ -87,7 +82,7 @@
             
               
               
-          <a href="{% url 'post-like' stream.post.id %}"><i class="material-icons left">thumb_up</i>{{ stream.post.likes_count }} Likes</a>
+          <a href="{% url 'postlike' stream.post.id %}"><i class="material-icons left">thumb_up</i>{{ stream.post.likes_count }} Likes</a>
           <a href="#"><i class="material-icons">favorite</i> {{ stream.post.favorites_count }} Favorites</a>
           <a href="#"><i class="material-icons">comment</i> {{ stream.post.comments_count }} Comments</a>
         </div>

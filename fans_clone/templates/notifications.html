@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+  <title>notifications</title>
+{% endblock title %}
+{% block content %}
+
+<ul class="collection">
+{% for notification in notifications %}
+
+{% comment %}
+  change the listed notifications appearence based on the notification type 
+{% endcomment %}
+  {% if notification.notification_type == 1 %}
+  <li class="collection-item avatar">
+    {% if notification.sender.profile.picture %}
+    <img src="{{ notification.sender.profile.picture.url }}" class="circle responsive-img">
+  {% else %}
+    <img src="{% static 'img/no_avatar.jpg' %}" class="circle responsive-img">
+  {% endif %}
+    <span class="title">{{notification.sender.first_name}}  {{notification.sender.last_name}}</span>
+    <p>@<b>{{notification.sender.username}}</b> </p>
+    <a href="{% url 'delete-notification' notification.id %}" class="secondary-content"><i class="material-icons">delete</i></a>
+    <br> 
+    <p> liked your post</p>
+    <a href="{% url 'post-detail' notification.post.id %}"> see post</a>
+  </li>
+  
+  {% elif  notification.notification_type == 2 %}
+  <li class="collection-item avatar">
+    {% if notification.sender.profile.picture %}
+    <img src="{{ notification.sender.profile.picture.url }}" class="circle responsive-img">
+  {% else %}
+    <img src="{% static 'img/no_avatar.jpg' %}" class="circle responsive-img">
+  {% endif %}
+    <span class="title">{{notification.sender.first_name}}  {{notification.sender.last_name}}</span>
+    <p>@<b>{{notification.sender.username}}</b> </p>
+    <a href="{% url 'delete-notification' notification.id %}" class="secondary-content"><i class="material-icons">delete</i></a>
+    <br> 
+    <p> Commented </p>
+    <p> "{{notification.text_preview}}"</p>
+    <a href="{% url 'post-detail' notification.post.id %}"> see post</a>
+
+  </li>
+
+  {% elif  notification.notification_type == 3 %}
+  <li class="collection-item avatar">
+    {% if notification.sender.profile.picture %}
+    <img src="{{ notification.sender.profile.picture.url }}" class="circle responsive-img">
+  {% else %}
+    <img src="{% static 'img/no_avatar.jpg' %}" class="circle responsive-img">
+  {% endif %}
+    <span class="title">{{notification.sender.first_name}}  {{notification.sender.last_name}}</span>
+    <p>@<b>{{notification.sender.username}}</b> </p>
+    <a href="{% url 'delete-notification' notification.id %}" class="secondary-content"><i class="material-icons">delete</i></a>
+    <br> 
+    <p>subscribed to you!</p>
+  </li>
+
+
+  {% endif %}
+  
+
+{% empty %}
+<div class="center-align">
+  <br><br><br><br><br><br>
+ <i class="material-icons large">inbox</i>
+  <h3>
+    no notifications
+  </h3>
+
+  <h3>
+    your inbox is empty 
+  </h3>
+  <br><br><br><br><br><br>
+
+
+</div>
+{% endfor %}
+  
+</ul>
+{% endblock %}

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from tier.models import Tier,Subscription
-from django.shortcuts import get_list_or_404, render,redirect,get_object_or_404
+from django.shortcuts import get_list_or_404, render,redirect,get_object_or_404,HttpResponse
 from tier.forms import NewTierForm
 
 def new_tier(request):
@@ -27,7 +27,7 @@ def subscribe(request,username,tier_id):
   tier = Tier.objects.get(id=tier_id)
 
   try:
-      Subscription.objects.get_or_create(subscriber=user, subscribed=subscribing, tier=tier)
+      subscribed = Subscription.objects.get_or_create(subscriber=user, subscribed=subscribing, tier=tier)
       return redirect('index')
   except User.DoesNotExist:
-      return redirect('index')
+      return HttpResponse(f'{user} does not exist')
