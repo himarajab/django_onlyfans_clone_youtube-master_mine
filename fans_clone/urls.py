@@ -13,7 +13,7 @@ urlpatterns = [
     path('user/', include('authy.urls')),
     path('post/', include('post.urls')),
     path('notifications/', include('notifications.urls')),
-    # path('messages/', include('direct.urls')),
+    path('messages/', include('direct.urls')),
     path('', index, name='index'),
     path('<username>/', UserProfile, name='profile'),
     path('<username>/photos', UserProfile, name='profilephotos'),

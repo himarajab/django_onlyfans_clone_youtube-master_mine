@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'tier',
     'comment',
     'notifications',
-
+    'direct'
     
     # plugins
 

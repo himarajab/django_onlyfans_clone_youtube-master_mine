@@ -63,7 +63,7 @@ from os import error
 
 
 # list-comprehensions/problem
-if __name__ == '__main__':
+# if __name__ == '__main__':
 #     x = int(input())
 #     y = int(input())
 #     z = int(input())
@@ -79,14 +79,31 @@ if __name__ == '__main__':
 #     print(base_list)
 
 
-    n = int(input())
-    student_marks = {}
-    for _ in range(n):
-        name, *line = input().split()
-        scores = list(map(float, line))
-        student_marks[name] = scores
-    query_name = input()
-    my_avg = sum(student_marks[query_name]) / len(student_marks[query_name])
-    print(f'{my_avg:.2f}')
+    # n = int(input())
+    # student_marks = {}
+    # for _ in range(n):
+    #     name, *line = input().split()
+    #     scores = list(map(float, line))
+    #     student_marks[name] = scores
+    # query_name = input()
+    # my_avg = sum(student_marks[query_name]) / len(student_marks[query_name])
+    # print(f'{my_avg:.2f}')
 
+    # x=2
+    # assert x==1,f'expected 1 but got {x=}'
+    # def better_grouper(n):
+    #     inputs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    #     iters = [iter(inputs)] * n
+        
+    #     return zip(*iters)
+
+
+
+def fibs():
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a + b
+
+    
 
