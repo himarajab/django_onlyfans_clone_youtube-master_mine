@@ -1,4 +1,5 @@
-from post.models import Post
+from django.db.models import Sum
+from post.models import Post, PostFileContent
 from tier.models import Tier,Subscription
 from django.shortcuts import render, redirect, get_object_or_404
 from authy.forms import SignupForm, ChangePasswordForm, EditProfileForm,NewListForm
@@ -31,42 +32,96 @@ def side_nav_info(request):
 	
 
 def UserProfile(request, username):
-	print(username)
 	user = get_object_or_404(User, username=username)
 	profile = Profile.objects.get(user=user)
-	tiers = Tier.objects.filter(user=user)
+	url = request.resolver_match.url_name
 
+	tiers = None
+	no_a_subscriber = None
+	posts = None
+	page_type = None
+	posts_data = None
+
+	if request.user != user:
+		try:
+			#Check if the user is subscribed to the profile
+			subscriber_tier = Subscription.objects.get(subscriber=request.user, subscribed=user, expired=False)
+			#Then we get the tiers of the profile and exclude the tiers that we are currently subscribed
+			tiers = Tier.objects.filter(user=user).exclude(number=subscriber_tier.tier.number)
+			
+			
+			# for pictures
+			if url == 'profilephotos':
+				posts = PostFileContent.objects.filter(user=user, tier__number__lte=subscriber_tier.tier.number).order_by('-posted').exclude(file__endswith='mp4')
+				page_type = 1
+			# for videos
+			elif url == 'profilevideos':
+				posts = PostFileContent.objects.filter(user=user, tier__number__lte=subscriber_tier.tier.number).order_by('-posted').exclude(file__endswith='jpg')
+				page_type = 2
+			else:
+				posts = Post.objects.filter(user=user, tier__number__lte=subscriber_tier.tier.number).order_by('-posted')
+				page_type = 3
+		# if user not subscribed then display all available tiers
+		except Exception:
+			tiers = Tier.objects.filter(user=user)
+			no_a_subscriber = False
+	else:
+		if url == 'profilephotos':
+			posts = PostFileContent.objects.filter(user=user).order_by('-posted').exclude(file__endswith='mp4')
+			page_type = 1
+		elif url == 'profilevideos':
+			posts = PostFileContent.objects.filter(user=user).order_by('-posted').exclude(file__endswith='jpg')
+			page_type = 2
+		else:
+			posts = Post.objects.filter(user=user).order_by('-posted')
+			page_type = 3
+	
+	#Pagination
+	if posts:
+		paginator = Paginator(posts, 6)
+		page_number = request.GET.get('page')
+		posts_data = paginator.get_page(page_number)
+	
+	#Profile stats
+	income = Subscription.objects.filter(subscribed=user,expired=False).aggregate(Sum('tier__price'))
+	fans_count = Subscription.objects.filter(subscribed=user, expired=False).count()
 	posts_count = Post.objects.filter(user=user).count()
 
-	# select favourite people list 
+
+	#Favorite people lists select
 	favorite_list = PeopleList.objects.filter(user=request.user)
 
+	#Check if the profile is in any of favorite list
+	person_in_list = PeopleList.objects.filter(user=request.user, people=user).exists()
 
-	# check if the profile in any of favourite list
-	person_in_list = PeopleList.objects.filter(user=request.user,people=user).exists()
-
-
-
-	# new favourie list form 
+	#New Favorite List form
 	if request.method == 'POST':
 		form = NewListForm(request.POST)
 		if form.is_valid():
 			title = form.cleaned_data.get('title')
-			PeopleList.objects.create(title=title,user=request.user)
-			return HttpResponseRedirect(reverse('profile',args=[username]))
+			PeopleList.objects.create(title=title, user=request.user)
+			return HttpResponseRedirect(reverse('profile', args=[username]))
 	else:
-			form = NewListForm()
+		form = NewListForm()
 
-
-	template = loader.get_template('profile.html')
 
 	context = {
-	'profile':profile,'tiers':tiers,'posts_count':posts_count,'form':form,
-	'favorite_list':favorite_list,'person_in_list':person_in_list,
+		'profile':profile,
+		'income':income,
+		'tiers': tiers,
+		'form': form,
+		'favorite_list': favorite_list,
+		'person_in_list': person_in_list,
+		'posts': posts_data,
+		'page_type': page_type,
+		'fans_count': fans_count,
+		'posts_count': posts_count,
+		'no_a_subscriber': no_a_subscriber,
+
 	}
 
-	return HttpResponse(template.render(context, request))
 
+	return render(request, 'profile.html', context)
 
 
 
