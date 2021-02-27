@@ -1,3 +1,4 @@
+from datetime import datetime,timedelta, tzinfo
 from django.contrib.auth.models import User
 from tier.models import Tier,Subscription
 from django.shortcuts import get_list_or_404, render,redirect,get_object_or_404,HttpResponse
@@ -31,3 +32,40 @@ def subscribe(request,username,tier_id):
       return redirect('index')
   except User.DoesNotExist:
       return HttpResponse(f'{user} does not exist')
+
+def fans_list(request):
+  # people subscribed to u
+  my_fans = Subscription.objects.filter(subscribed=request.user)
+  context = {
+    'my_fans':my_fans,
+    }
+  return render(request,'fans_list.html',context)
+
+
+def following_list(request):
+  # people u ar follow
+  my_follows = Subscription.objects.filter(subscriber=request.user)
+  
+  # each subscriation is for one month and will display how days remaining for the expiration date 
+  for follows in my_follows:
+    if follows.expired !=True:
+      end_date = datetime.now() - timedelta(days=6)
+      # calculate the date and drop the time zone info 
+      remaining = follows.date.replace(tzinfo=None) - end_date.replace(tzinfo=None)
+      days_left = remaining.days
+      follows.date = days_left
+
+
+  context = {
+    'my_follows':my_follows,
+    }
+  return render(request,'following_list.html',context)
+
+def check_expiration(request):
+  exp_date = datetime.now() - timedelta(days=6)
+  subs = Subscription.objects.filter(subscriber=request.user,date__lt=exp_date)
+  subs.update(expired=True)
+  fans = Subscription.objects.filter(subscribed=request.user,date__lt=exp_date)
+  fans.update(expired=True)
+
+  return redirect('index')

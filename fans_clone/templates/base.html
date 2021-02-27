@@ -59,8 +59,8 @@
       <a href="#email"><span class="white-text email">{{ nav_profile.user.email }}</span></a>
     </div></li>
       
-    <li><a href=""><i class="material-icons">star</i>{{ fans }}     Fans</a></li>
-    <li><a href=""><i class="material-icons">people</i>{{ follows }}     Following</a></li>
+    <li><a href="{% url 'myfans' %}"><i class="material-icons">star</i>{{ fans }}     Fans</a></li>
+    <li><a href="{% url 'myfollows' %}"><i class="material-icons">people</i>{{ follows }}     Following</a></li>
 
     <li><div class="divider"></div></li>
     <li><a class="subheader">Me</a></li>

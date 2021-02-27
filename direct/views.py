@@ -1,3 +1,6 @@
+from django.contrib.humanize.templatetags import humanize
+from django.contrib.humanize.templatetags.humanize import naturaltime
+
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
 from django.urls import reverse
 from django.core.paginator import Paginator
@@ -25,7 +28,6 @@ def people_we_can_message(request):
 def new_conversation(request,username):
   from_user = request.user
   to_user = get_object_or_404(User,username=username)
-  print(to_user)
   body = 'started a new conversation'
 
   # can't send message to your self
@@ -69,9 +71,16 @@ def directs(request,username):
     if message['user'].username == username:
       # delete all unread messages
       message['unread'] =0
+  #Pagination for directs
+  paginator_directs = Paginator(directs, 5)
+  page_number_directs = request.GET.get('directspage')
+  
+  directs_data = paginator_directs.get_page(page_number_directs)
+  # stream_data = [1]
+  # return True
   context = {
+      'directs': directs_data,
       'messages': messages,
-      'directs': directs,
       'active_direct': active_direct,
   }
 
@@ -92,3 +101,59 @@ def send_direct(request):
   else:
     HttpResponseBadRequest()
   
+
+def load_more(request):
+  user = request.user
+
+  if request.is_ajax():
+    username = request.POST.get('username')
+    page_number_directs = request.POST.get('directspage')
+    # load the messages and get the values before send it to json
+    directs = Message.objects.filter(user=user,recipient__username=username).order_by('-date').values(
+      'sender__profile__picture',
+      'sender__first_name',
+      'sender__last_name',
+      'body',
+      'date'
+    )
+
+    #Pagination for directs
+    paginator_directs = Paginator(directs, 5)
+    # if we on the same page number
+    if paginator_directs.num_pages >= int(page_number_directs):
+      # get the page data if it's a page in range (vaild number)
+      directs_data = paginator_directs.get_page(page_number_directs)
+
+
+      # create list of data 
+      directs_list = list(directs_data)
+
+      # replace the default date with humenize valid  date for json 
+      for message in range(len(directs_list)):
+        directs_list[message]['date'] = naturaltime(directs_list[message]['date'])
+      
+      return JsonResponse(directs_list,safe=False)
+    else:
+      return JsonResponse({'empty':True},safe=False)
+
+
+@login_required
+def user_search(request):
+  query = request.GET.get('q')
+  users_paginator = None
+
+  if query:
+    users = Subscription.objects.filter(Q(subscribed__username__icontains=query) & Q(tier__can_message=True))
+    
+    #Pagination 
+    paginator = Paginator(users, 6)
+    page_number = request.GET.get('directspage')
+    
+    users_paginator = paginator.get_page(page_number)
+
+  context = {
+      'users': users_paginator,
+      
+  }
+
+  return render(request,'direct/search_user.html',context)

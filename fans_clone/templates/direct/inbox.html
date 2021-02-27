@@ -35,7 +35,7 @@
     {% endfor %}
   </ul>
 <div class="center-align">
-  <a href="" class="waves-effect waves-light btn-large"><i class="material-icons right">search</i>Search</a>
+  <a href="{% url 'user-search' %}" class="waves-effect waves-light btn-large"><i class="material-icons right">search</i>Search</a>
   <a href="{% url 'people-we-can-message' %}" class="waves-effect waves-light btn-large"><i class="material-icons right">person</i>Following</a>
 </div>
 {% endblock %}

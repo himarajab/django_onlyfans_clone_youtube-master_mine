@@ -153,7 +153,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 #Auth
-LOGIN_REDIRECT_URL = 'index'
+LOGIN_REDIRECT_URL = 'check-expiration'
 LOGOUT_REDIRECT_URL = 'login'
 LOGIN_URL = '/user/login/'
 

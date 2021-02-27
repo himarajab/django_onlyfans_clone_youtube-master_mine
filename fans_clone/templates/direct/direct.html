@@ -19,7 +19,6 @@
             <img src="{% static 'img/no_avatar.jpg' %}" class="circle responsive-img">
         {% endif %}
             <span class="title">{{ message.user.first_name }} {{ message.user.last_name }}</span>
-            <p><b>@{{ message.user.username }}</b></p>
             <span class="new badge">{{ message.unread }}</span>
             <a href="" class="secondary-content red-text"><i class="material-icons">delete</i></a>
     </li>
@@ -32,6 +31,12 @@
     <div style="max-width: 600px;" class="card">
         <div class="card-content">
             <div class="center-align">
+                {% if directs.has_next %}
+
+                <a id="loadmorebtn" class="waves-effect waves-light btn-small"><i class="material-icons left">add</i>Load more</a>
+                <input id="page_number" type="hidden" value="{{directs.next_page_number}}">
+
+                {% endif %}
 
             </div>
             <!-- display first message in the end of the column  column-reverse -->
@@ -74,3 +79,16 @@
 
 {% endblock %}
 
+{% block javascript %}
+<script type="text/javascript">
+    // This is for the AJAX request in loadmore.js script. So we can send post request.
+    // Because csrf_token is neccesary for ajax requests.
+    window.CSRF_TOKEN = "{{ csrf_token }}";
+    
+</script>
+
+<script src="{% static 'js/loadmore.js' %}">
+
+
+</script>
+{% endblock %}

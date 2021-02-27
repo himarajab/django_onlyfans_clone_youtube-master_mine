@@ -1,9 +1,9 @@
 (function($){
-
     $("#loadmorebtn").click(function(){
         var username = document.getElementsByName("to_user")[0].value;
         var directspage = document.getElementById('page_number');
         var page_number = parseInt(directspage.value);
+       
 
         $.ajax({
             url: '/messages/loadmore/',
@@ -24,6 +24,7 @@
                     });
                 }
             page_number = page_number + 1;
+            // update page number value
             $("#page_number").attr('value', page_number);
 
             }
